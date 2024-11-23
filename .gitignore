@@ -1,0 +1,44 @@
+# Ignorování obecných systémových souborů
+.DS_Store
+Thumbs.db
+
+# Ignorování virtuálních prostředí
+venv/
+env/
+.venv/
+.env/
+
+# Python soubory
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+
+# Logy a dočasné soubory
+*.log
+*.tmp
+*.temp
+*.out
+*.pid
+*.swp
+*.swo
+
+# Soubory související s testováním
+.coverage
+.tox/
+.cache/
+.pytest_cache/
+
+# Nastavení a metadata editoru
+.vscode/
+.idea/
+*.code-workspace
+
+# Konfigurační soubory s citlivými daty
+*.env
+.env.*
+.secret
