@@ -42,3 +42,5 @@ __pycache__/
 *.env
 .env.*
 .secret
+
+debug-run.sh

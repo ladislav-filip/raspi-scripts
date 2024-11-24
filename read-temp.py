@@ -7,6 +7,7 @@ import tm1637
 from decimal import Decimal
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo 
+from libs import logger
 
 # Nastavení pinů, které jste použili pro připojení DIO a CLK
 CLK = 18
@@ -56,13 +57,13 @@ def is_data_older_than_15_minutes(json_data, timezone_str="UTC"):
         # Kontrola, zda existují očekávané klíče
         results = json_data.get("results", [])
         if not results or "series" not in results[0]:
-            print("JSON neobsahuje data.")
+            logger.log_error("JSON neobsahuje data.")
             return None
 
         # Získání času z JSON
         time_str = results[0]["series"][0]["values"][0][0]  # Předpoklad: čas na indexu [0][0]
         time_str = time_str.split(".")[0]  # Odstranění desetinných míst
-        print(f"Čas z JSON: {time_str}")
+        logger.log_info(f"Čas z JSON: {time_str}")
 
         # Převod času na datetime objekt
         measurement_time = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S")
@@ -71,14 +72,14 @@ def is_data_older_than_15_minutes(json_data, timezone_str="UTC"):
 
         # Aktuální čas v dané časové zóně
         current_time = datetime.now(tz)
-        print(f"Aktuální čas: {current_time}")
+        logger.log_info(f"Aktuální čas: {current_time}")
 
         # Výpočet rozdílu
         time_difference = current_time - measurement_time
         return time_difference > timedelta(minutes=15)
 
     except (KeyError, IndexError, ValueError) as e:
-        print(f"Chyba při zpracování JSON: {e}")
+        logger.log_error(f"Chyba při zpracování JSON: {e}")
         return None
 
 
@@ -113,18 +114,19 @@ if response.status_code == 200:
     # Extract the last value from the response
     if "series" in result["results"][0]:
         last_value = result["results"][0]["series"][0]["values"][0][1]
-        print(f"Last value from 'teplota' measurement: {last_value}")
+        logger.log_info(f"Poslední hodnota z měření 'teplota': {last_value}")
         formatted_number = format_number_with_degree(last_value)
         # Zobrazení symbolu stupně (např. tečka) na poslední pozici
         display.show(formatted_number)    
 
         # Kontrola stáří dat
-        if is_data_older_than_5_minutes(result):
+        if is_data_older_than_15_minutes(result):
             display.show("OLD")
-            print("Data is older than 5 minutes.")
+            logger.log_info("Data je starší než 15 minut.")
 
     else:
         display.show("NaN")
-        print("No data found in 'teplota' measurement.")
+        logger.log_error("Nebyla nalezena žádná data v měření 'teplota'.")  
+
 else:
    display.show('ERR')
