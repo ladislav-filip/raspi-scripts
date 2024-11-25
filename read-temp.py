@@ -1,17 +1,31 @@
 #!/usr/bin/env python
-
 import requests
+
 from decimal import Decimal
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo 
-from libs import logger
-from libs.env_load import influxdb_url, database_name, ha_username, ha_password
-from libs import custom_display
-from libs import helper
+from zoneinfo import ZoneInfo
+
+from libs import custom_display, helper, logger
+from libs.env_load import database_name, ha_password, ha_username, influxdb_url
 
 customDisplay = custom_display.CustomDisplay()
 
 def is_data_older_than_15_minutes(json_data, timezone_str="UTC"):
+    """
+    Kontroluje, zda jsou data v poskytnutém JSON starší než 15 minut.
+
+    Argumenty:
+        json_data (dict): JSON data obsahující časové informace.
+        timezone_str (str, volitelný): Řetězec časového pásma, který má být použit 
+        pro porovnání času. Výchozí hodnota je "UTC".
+
+    Návratová hodnota:
+        bool: True, pokud jsou data starší než 15 minut, jinak False.
+        None: Pokud JSON neobsahuje očekávaná data nebo dojde k chybě při zpracování.
+
+    Výjimky:
+        Žádné: Tato funkce zpracovává výjimky interně a místo vyvolání je zaznamenává chyby.
+    """
     try:
         # Kontrola, zda existují očekávané klíče
         results = json_data.get("results", [])
@@ -55,7 +69,8 @@ def get_last_value_from_influxdb(sensor):
                 "db": database_name,
                 "q": query
             },
-            auth=(ha_username, ha_password)
+            auth=(ha_username, ha_password),
+            timeout=10  # Add a timeout of 10 seconds
         )
 
         return response
