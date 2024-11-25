@@ -80,9 +80,23 @@ def get_last_value_from_influxdb(sensor):
     return None
 
 def main():
+    response = get_last_value_from_influxdb("garden")
+    # log write response
+    logger.log_info(f"Response from garden: {response.text.encode('utf8')}")
+    if response:
+        value = get_degree_value_from_response(response)
+        if value:
+            customDisplay.show(value)
+            exit(0)
+        else:
+            customDisplay.show_error()
+    else:
+        customDisplay.show_error()
+
+
     response = get_last_value_from_influxdb("msr-mosnov")
     # log write response
-    logger.log_info(f"Response: {response.text.encode('utf8')}")
+    logger.log_info(f"Response from Mosnov: {response.text.encode('utf8')}")
     if response:
         value = get_degree_value_from_response(response)
         if value:
